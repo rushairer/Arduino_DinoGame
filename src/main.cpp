@@ -27,8 +27,7 @@ void setup()
     button1.attachClick(startGame);
     button1.attachLongPressStart(setCheat);
 
-    button2.attachClick(dinoJump);
-    button2.attachDuringLongPress(dinoJump);
+    // button2.attachClick(dinoJump);
 
     button3.attachLongPressStart(showUltraman);
 
@@ -38,7 +37,11 @@ void setup()
 void loop()
 {
     button1.tick();
-    button2.tick();
+    // button2.tick();
+    if (digitalRead(A2) == LOW)
+    {
+        dinoJump();
+    }
     button3.tick();
 
     dinoGameArduino.loop();
@@ -46,7 +49,6 @@ void loop()
 
 void startGame()
 {
-    Serial.println("startGame");
     dinoGameArduino.startGame();
 }
 
@@ -57,6 +59,7 @@ void setCheat()
 
 void dinoJump()
 {
+    Serial.println("dinoJump");
     dinoGameArduino.dinoJump();
 }
 

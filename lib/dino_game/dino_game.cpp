@@ -148,7 +148,7 @@ void DinoGame::calLevel()
 void DinoGame::checkCollision()
 {
     if (((_obstacleReal.category != OBSTACLE_BIRD && _dino.frame.offset.y < _obstacleReal.hitZone.size.height - 3) ||
-         (_obstacleReal.category == OBSTACLE_BIRD && _dino.frame.offset.y > 5)) &&
+         (_obstacleReal.category == OBSTACLE_BIRD && _dino.frame.offset.y > 5 && _dino.frame.offset.y < _obstacleReal.hitZone.postion.y)) &&
         (_obstacleReal.hitZone.postion.x < 13 && _obstacleReal.hitZone.postion.x + _obstacleReal.hitZone.size.width > 5))
     {
         _gameStatus = GAME_OVER_STATUS;

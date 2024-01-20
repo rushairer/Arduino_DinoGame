@@ -47,6 +47,10 @@ DinoGameArduino::~DinoGameArduino()
 void DinoGameArduino::setup()
 {
     _u8g2->begin();
+    _u8g2->setFont(u8g2_font_timR08_tf);
+    _u8g2->setFontMode(1);
+    _u8g2->setBitmapMode(1);
+    _u8g2->setFontPosTop();
     _u8g2->enableUTF8Print();
 
     _dinoGame.setup();
@@ -58,15 +62,27 @@ void DinoGameArduino::loop()
     _u8g2->firstPage();
     do
     {
-        _u8g2->setFont(u8g2_font_timR08_tf);
-        _u8g2->setFontMode(1);
-        _u8g2->setBitmapMode(1);
-        _u8g2->setFontPosTop();
-
         drawDino();
         drawObstacleReal();
         drawObstacleBackup();
         drawCloud();
+
+        if (_cheatMode == CHEAT_MODE_CHEAT)
+        {
+            _u8g2->setFont(u8g2_font_timR08_tf);
+            _u8g2->setCursor(_cloud.frame.postion.x, 12);
+            _u8g2->print("c");
+        }
+
+        if (_showUltraman == 1)
+        {
+            _u8g2->drawXBMP(
+                _dinoGame.getDino()->frame.postion.x,
+                _dinoGame.getDino()->frame.postion.y - _dinoGame.getDino()->frame.offset.y - 58 + _dinoGame.getDino()->frame.size.height,
+                20,
+                58,
+                ultramanImg);
+        }
 
         if (_dinoGame.getGameStatus() == GAME_WAITING_STATUS)
         {
@@ -93,7 +109,10 @@ void DinoGameArduino::loop()
             unsigned int currentLevel = _dinoGame.getLevel();
             sprintf(lvText, "LV: %d", currentLevel);
             _u8g2->print(lvText);
+        }
 
+        if (_dinoGame.getGameStatus() == GAME_PLAYING_STATUS || _dinoGame.getGameStatus() == GAME_OVER_STATUS)
+        {
             char scoreText[10];
             unsigned int score = _dinoGame.getScore();
             sprintf(scoreText, "SCORE: %d", score);
@@ -106,8 +125,6 @@ void DinoGameArduino::loop()
                     break;
                 }
             }
-
-            Serial.println(i);
             _u8g2->setCursor((_u8g2->getWidth() - (i - 1) * 6), 0);
             _u8g2->print(scoreText);
         }
@@ -128,6 +145,7 @@ void DinoGameArduino::startGame()
 
 void DinoGameArduino::setCheatMode(CheatMode cheatMode)
 {
+    _cheatMode = cheatMode;
     _dinoGame.setCheatMode(cheatMode);
 }
 
@@ -138,6 +156,22 @@ void DinoGameArduino::dinoJump()
 
 void DinoGameArduino::showUltraman()
 {
+    _showUltraman = 1;
+}
+
+unsigned int DinoGameArduino::getScore()
+{
+    return _dinoGame.getScore();
+}
+
+unsigned int DinoGameArduino::getLevel()
+{
+    return _dinoGame.getLevel();
+}
+
+DinoGameStatus DinoGameArduino::getGameStatus()
+{
+    return _dinoGame.getGameStatus();
 }
 
 // protected
