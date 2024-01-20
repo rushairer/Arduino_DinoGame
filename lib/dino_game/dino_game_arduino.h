@@ -4,9 +4,6 @@
 #include "dino_game.h"
 #include <U8g2lib.h>
 
-unsigned int getDinoImageAddress(Dino *dino);
-unsigned int getObstacleImageAddress(Obstacle *obstacle);
-
 class DinoGameArduino;
 
 // PRE-SAVED BITMAP CONSTANTS
@@ -147,10 +144,23 @@ protected:
     void drawObstacleReal();
     void drawObstacleBackup();
 
+    // Custom game
+    Object _cloud;
+    void moveCloud();
+    void drawCloud();
+
 private:
-    unsigned int _dinoImageAddress;
-    unsigned int _obstacleRealImageAddress;
-    unsigned int _obstacleBackupImageAddress;
+    const unsigned char *_dinoImagePtr;
+    const unsigned char *_obstacleRealImagePtr;
+    const unsigned char *_obstacleBackupImagePtr;
+
+    void resetDinoImagePtr(
+        const unsigned char **dinoImagePtr,
+        Dino *dino);
+
+    void resetObstacleImagePtr(
+        const unsigned char **obstacleImagePtr,
+        Obstacle *obstacle);
 };
 
 #endif // !__DINO_GAME_ARDUINO_H_

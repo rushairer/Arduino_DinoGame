@@ -1,28 +1,5 @@
 #include "dino_game_arduino.h"
 
-unsigned int getDinoImageAddress(Dino *dino)
-{
-    unsigned int dinoImageAddress;
-    switch (dino->pose)
-    {
-    case DINO_JUMP:
-        dinoImageAddress = reinterpret_cast<unsigned int>(dinoJumpImg);
-        break;
-    case DINO_LEFT:
-        dinoImageAddress = reinterpret_cast<unsigned int>(dinoLeftImg);
-        break;
-    case DINO_RIGHT:
-        dinoImageAddress = reinterpret_cast<unsigned int>(dinoRightImg);
-        break;
-    case DINO_BLAH:
-    default:
-        dinoImageAddress = reinterpret_cast<unsigned int>(dinoBlahImg);
-        break;
-    }
-
-    return dinoImageAddress;
-}
-
 unsigned int getObstacleImageAddress(Obstacle *obstacle)
 {
     unsigned int obstacleImageAddress;
@@ -86,28 +63,59 @@ void DinoGameArduino::loop()
         _u8g2->setBitmapMode(1);
         _u8g2->setFontPosTop();
 
-        Dino *dino = _dinoGame.getDino();
-        _dinoImageAddress = getDinoImageAddress(dino);
         drawDino();
-
-        Obstacle *obstacleReal = _dinoGame.getObstacleReal();
-        _obstacleRealImageAddress = getObstacleImageAddress(obstacleReal);
         drawObstacleReal();
-
-        Obstacle *obstacleBackup = _dinoGame.getObstacleBackup();
-        _obstacleBackupImageAddress = getObstacleImageAddress(obstacleBackup);
         drawObstacleBackup();
+        drawCloud();
 
         if (_dinoGame.getGameStatus() == GAME_WAITING_STATUS)
         {
-            _u8g2->setCursor(0, 0);
             _u8g2->setFont(u8g2_font_timR12_tf);
-            _u8g2->print("= Dino Game =");
+            char title[] = "= Dino Game =";
+            _u8g2->setCursor((_u8g2->getWidth() - (sizeof(title) - 1) * 8) / 2, 0);
+            _u8g2->print(title);
+        }
+        else if (_dinoGame.getGameStatus() == GAME_OVER_STATUS)
+        {
+            _u8g2->drawXBMP(
+                (_u8g2->getWidth() - 100) / 2,
+                (_u8g2->getHeight() - 15) / 2,
+                100,
+                15,
+                gameOverImg);
+        }
+        else if (_dinoGame.getGameStatus() == GAME_PLAYING_STATUS)
+        {
+            _u8g2->setFont(u8g2_font_timR08_tf);
+
+            _u8g2->setCursor(0, 0);
+            char lvText[6];
+            unsigned int currentLevel = _dinoGame.getLevel();
+            sprintf(lvText, "LV: %d", currentLevel);
+            _u8g2->print(lvText);
+
+            char scoreText[10];
+            unsigned int score = _dinoGame.getScore();
+            sprintf(scoreText, "SCORE: %d", score);
+
+            unsigned int i;
+            for (i = 0; i < sizeof(scoreText); i++)
+            {
+                if (scoreText[i] == '\0')
+                {
+                    break;
+                }
+            }
+
+            Serial.println(i);
+            _u8g2->setCursor((_u8g2->getWidth() - (i - 1) * 6), 0);
+            _u8g2->print(scoreText);
         }
 
     } while (_u8g2->nextPage());
 
     _dinoGame.loop();
+    moveCloud();
 }
 
 void DinoGameArduino::startGame()
@@ -137,32 +145,115 @@ void DinoGameArduino::showUltraman()
 void DinoGameArduino::drawDino()
 {
     Dino *dino = _dinoGame.getDino();
+    resetDinoImagePtr(&_dinoImagePtr, dino);
+
     _u8g2->drawXBMP(
         dino->frame.postion.x,
         dino->frame.postion.y - dino->frame.offset.y,
         dino->frame.size.width,
         dino->frame.size.height,
-        reinterpret_cast<const unsigned char *>(_dinoImageAddress));
+        _dinoImagePtr);
 }
 
 void DinoGameArduino::drawObstacleReal()
 {
     Obstacle *obstacle = _dinoGame.getObstacleReal();
+    resetObstacleImagePtr(&_obstacleRealImagePtr, obstacle);
     _u8g2->drawXBMP(
         obstacle->frame.postion.x,
         obstacle->frame.postion.y,
         obstacle->frame.size.width,
         obstacle->frame.size.height,
-        reinterpret_cast<const unsigned char *>(_obstacleRealImageAddress));
+        _obstacleRealImagePtr);
 }
 
 void DinoGameArduino::drawObstacleBackup()
 {
     Obstacle *obstacle = _dinoGame.getObstacleBackup();
+    resetObstacleImagePtr(&_obstacleBackupImagePtr, obstacle);
+
     _u8g2->drawXBMP(
         obstacle->frame.postion.x,
         obstacle->frame.postion.y,
         obstacle->frame.size.width,
         obstacle->frame.size.height,
-        reinterpret_cast<const unsigned char *>(_obstacleBackupImageAddress));
+        _obstacleBackupImagePtr);
+}
+
+void DinoGameArduino::moveCloud()
+{
+    _cloud.frame.postion.y = 10;
+    _cloud.frame.size.width = 39;
+    _cloud.frame.size.height = 12;
+
+    _cloud.frame.postion.x--;
+
+    if (_cloud.frame.postion.x < -_cloud.frame.size.width)
+    {
+        _cloud.frame.postion.x = _u8g2->getWidth();
+    }
+}
+
+void DinoGameArduino::drawCloud()
+{
+    _u8g2->drawXBMP(
+        _cloud.frame.postion.x,
+        _cloud.frame.postion.y,
+        _cloud.frame.size.width,
+        _cloud.frame.size.height,
+        cloudImg);
+}
+
+// private
+void DinoGameArduino::resetDinoImagePtr(
+    const unsigned char **dinoImagePtr,
+    Dino *dino)
+{
+    switch (dino->pose)
+    {
+    case DINO_JUMP:
+        *dinoImagePtr = dinoJumpImg;
+        break;
+    case DINO_LEFT:
+        *dinoImagePtr = dinoLeftImg;
+        break;
+    case DINO_RIGHT:
+        *dinoImagePtr = dinoRightImg;
+        break;
+    case DINO_BLAH:
+    default:
+        *dinoImagePtr = dinoBlahImg;
+        break;
+    }
+}
+
+void DinoGameArduino::resetObstacleImagePtr(
+    const unsigned char **obstacleImagePtr,
+    Obstacle *obstacle)
+{
+    switch (obstacle->category)
+    {
+    case OBSTACLE_ONE_CACTUS:
+        *obstacleImagePtr = oneCactusImg;
+        break;
+    case OBSTACLE_TWO_CACTUS:
+        *obstacleImagePtr = twoCactusImg;
+        break;
+    case OBSTACLE_THREE_CACTUS:
+        *obstacleImagePtr = threeCactusImg;
+        break;
+    case OBSTACLE_ONE_SMALL_CACTUS:
+        *obstacleImagePtr = oneSmallCactusImg;
+        break;
+    case OBSTACLE_TWO_SMALL_CACTUS:
+        *obstacleImagePtr = twoSmallCactusImg;
+        break;
+    case OBSTACLE_THREE_SMALL_CACTUS:
+        *obstacleImagePtr = threeSmallCactusImg;
+        break;
+    case OBSTACLE_BIRD:
+    default:
+        *obstacleImagePtr = obstacle->frame.postion.x % 20 > 10 ? birdUpImg : birdDownImg;
+        break;
+    }
 }

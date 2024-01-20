@@ -43,7 +43,7 @@ void DinoGame::loop()
     {
         moveObstacles();
         moveDino();
-        // checkCollision();
+        checkCollision();
         calLevel();
     }
 }
