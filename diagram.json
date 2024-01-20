@@ -1,0 +1,241 @@
+{
+    "version": 1,
+    "author": "Aben",
+    "editor": "wokwi",
+    "parts": [
+        {
+            "type": "wokwi-breadboard-half",
+            "id": "bb1",
+            "top": 6.6,
+            "left": 329.2,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-arduino-uno",
+            "id": "uno",
+            "top": 0.6,
+            "left": -0.6,
+            "attrs": {}
+        },
+        {
+            "type": "board-ssd1306",
+            "id": "oled1",
+            "top": 51.14,
+            "left": 441.83,
+            "attrs": {
+                "i2cAddress": "0x3c"
+            }
+        },
+        {
+            "type": "wokwi-pushbutton",
+            "id": "btn2",
+            "top": 316.2,
+            "left": 435,
+            "rotate": 90,
+            "attrs": {
+                "color": "green"
+            }
+        },
+        {
+            "type": "wokwi-pushbutton",
+            "id": "btn3",
+            "top": 316.2,
+            "left": 502.2,
+            "rotate": 90,
+            "attrs": {
+                "color": "blue"
+            }
+        },
+        {
+            "type": "wokwi-buzzer",
+            "id": "bz1",
+            "top": -141.6,
+            "left": 424.2,
+            "attrs": {
+                "volume": "0.1"
+            }
+        },
+        {
+            "type": "wokwi-pushbutton",
+            "id": "btn1",
+            "top": 316.2,
+            "left": 358.2,
+            "rotate": 90,
+            "attrs": {
+                "color": "red"
+            }
+        }
+    ],
+    "connections": [
+        [
+            "uno:5V",
+            "bb1:bp.1",
+            "red",
+            [
+                "v19.1",
+                "h157.4",
+                "v-19.2"
+            ]
+        ],
+        [
+            "uno:GND.2",
+            "bb1:bn.1",
+            "black",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "bb1:bp.25",
+            "bb1:tp.25",
+            "red",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "bb1:bn.24",
+            "bb1:tn.24",
+            "black",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "bb1:tp.12",
+            "bb1:15t.a",
+            "red",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "bb1:tn.11",
+            "bb1:14t.a",
+            "black",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "uno:A5.2",
+            "bb1:16t.a",
+            "green",
+            [
+                "v-19.2",
+                "h412.8",
+                "v9.6"
+            ]
+        ],
+        [
+            "uno:A4.2",
+            "bb1:17t.a",
+            "cyan",
+            [
+                "v-28.8",
+                "h-0.4"
+            ]
+        ],
+        [
+            "btn2:1.l",
+            "bb1:bn.11",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "btn3:1.l",
+            "bb1:bn.17",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "bz1:1",
+            "bb1:tn.9",
+            "black",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "bz1:2",
+            "uno:3",
+            "green",
+            [
+                "v19.2",
+                "h-230.8"
+            ]
+        ],
+        [
+            "oled1:GND",
+            "bb1:14t.a",
+            "",
+            [
+                "$bb"
+            ]
+        ],
+        [
+            "oled1:VCC",
+            "bb1:15t.a",
+            "",
+            [
+                "$bb"
+            ]
+        ],
+        [
+            "oled1:SCL",
+            "bb1:16t.a",
+            "",
+            [
+                "$bb"
+            ]
+        ],
+        [
+            "oled1:SDA",
+            "bb1:17t.a",
+            "",
+            [
+                "$bb"
+            ]
+        ],
+        [
+            "btn1:1.l",
+            "bb1:bn.5",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "btn1:2.l",
+            "uno:12",
+            "green",
+            [
+                "v-9.6",
+                "h-249.8"
+            ]
+        ],
+        [
+            "btn2:2.l",
+            "uno:8",
+            "green",
+            [
+                "v-28.8",
+                "h-269"
+            ]
+        ],
+        [
+            "btn3:2.l",
+            "uno:7",
+            "green",
+            [
+                "v-57.6",
+                "h-9.8"
+            ]
+        ]
+    ],
+    "dependencies": {}
+}
