@@ -152,6 +152,7 @@ void DinoGame::checkCollision()
         (_obstacleReal.hitZone.postion.x < 13 && _obstacleReal.hitZone.postion.x + _obstacleReal.hitZone.size.width > 5))
     {
         _gameStatus = GAME_OVER_STATUS;
+        _dino.pose = DINO_BLAH;
     }
 }
 

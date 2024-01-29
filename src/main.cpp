@@ -1,69 +1,66 @@
 #include <Arduino.h>
 #include <U8g2lib.h>
 #include <Wire.h>
-#include <OneButton.h>
 #include "dino_game_arduino.h"
 
+#define I2C 1
+
+#ifdef I2C
 U8G2_SSD1306_128X64_NONAME_1_HW_I2C oled(U8G2_R0);
+#else
+/*
+ RS   <-> 10
+ R/W  <-> 11
+ E    <-> 13
+ PSB  <-> GND
+ RST  <-> 8
+*/
+U8G2_ST7920_128X64_1_HW_SPI oled(U8G2_R2, 10, 8);
+#endif
 
 DinoGameArduino dinoGameArduino(&oled);
 
-// 默认Arduino的模拟引脚不带上拉电阻, 这里A1,A2,A3分别外接了上拉电阻
-OneButton button1(A1);
-OneButton button2(A2);
-OneButton button3(A3);
+#ifdef STM32F1
 
-void startGame();
-void setCheat();
-void dinoJump();
-void showUltraman();
+#define BUTTON1_PIN PB12
+#define BUTTON2_PIN PB13
+
+#elif defined(ARDUINO_AVR_UNO)
+
+#define BUTTON1_PIN 6
+#define BUTTON2_PIN 7
+
+#endif
 
 void setup()
 {
     Serial.begin(115200);
 
-    oled.setI2CAddress(0x3C * 2);
+#ifdef I2C
+    oled.setI2CAddress(0x3C * 2); // For I2C
+#endif
 
-    button1.attachClick(startGame);
-    button1.attachLongPressStart(setCheat);
-
-    // button2.attachClick(dinoJump);
-
-    button3.attachLongPressStart(showUltraman);
-
+    pinMode(BUTTON1_PIN, INPUT);
+    pinMode(BUTTON2_PIN, INPUT);
     dinoGameArduino.setup();
 }
 
 void loop()
 {
-    button1.tick();
-    // button2.tick();
-    if (digitalRead(A2) == LOW)
+    if (digitalRead(BUTTON1_PIN) == HIGH && digitalRead(BUTTON2_PIN) == HIGH)
     {
-        dinoJump();
+        dinoGameArduino.setCheatMode(CHEAT_MODE_CHEAT);
     }
-    button3.tick();
-
+    else
+    {
+        if (digitalRead(BUTTON1_PIN) == HIGH)
+        {
+            dinoGameArduino.startGame();
+        }
+        if (digitalRead(BUTTON2_PIN) == HIGH)
+        {
+            dinoGameArduino.dinoJump();
+        }
+    }
     dinoGameArduino.loop();
-}
-
-void startGame()
-{
-    dinoGameArduino.startGame();
-}
-
-void setCheat()
-{
-    dinoGameArduino.setCheatMode(CHEAT_MODE_CHEAT);
-}
-
-void dinoJump()
-{
-    Serial.println("dinoJump");
-    dinoGameArduino.dinoJump();
-}
-
-void showUltraman()
-{
-    dinoGameArduino.showUltraman();
 }
